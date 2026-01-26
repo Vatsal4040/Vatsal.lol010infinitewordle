@@ -118,6 +118,68 @@ h1 {
 .key.wide {
     min-width: 64px;
 }
+
+/* ===== MOBILE SAFETY ===== */
+@media (max-width: 420px) {
+    #game {
+        padding: 12px;
+    }
+
+    .tile {
+        height: 48px;
+        font-size: 1.6rem;
+    }
+
+    .key {
+        padding: 10px;
+        font-size: 0.9rem;
+        min-width: 28px;
+    }
+
+    .key.wide {
+        min-width: 56px;
+    }
+}
+
+/* Very small phones (iPhone SE, old Android) */
+@media (max-width: 360px) {
+    .tile {
+        height: 44px;
+        font-size: 1.4rem;
+    }
+
+    .key {
+        padding: 8px;
+        font-size: 0.8rem;
+    }
+}
+body {
+    padding-bottom: env(safe-area-inset-bottom);
+}
+/* ===== TILE FLIP ANIMATION ===== */
+.tile {
+    perspective: 1000px;
+}
+
+.tile.flip {
+    animation: flip 0.6s ease forwards;
+}
+
+@keyframes flip {
+    0% {
+        transform: rotateX(0deg);
+    }
+    50% {
+        transform: rotateX(90deg);
+        background: #333;
+    }
+    100% {
+        transform: rotateX(0deg);
+    }
+}
+
+
+
 </style>
 </head>
 
@@ -234,49 +296,76 @@ function initBoard() {
 }
 
 initBoard();
-
 function submitGuess() {
     if (gameOver || currentGuess.length !== 5) return;
 
     const rowTiles = board.children[currentRow].children;
     const temp = correctWord.split("");
 
+    /* 1️⃣ Trigger flip animation (staggered) */
     for (let i = 0; i < 5; i++) {
-        if (currentGuess[i] === correctWord[i]) {
-            rowTiles[i].classList.add("correct");
-            temp[i] = null;
-        }
+        const tile = rowTiles[i];
+        tile.textContent = currentGuess[i];
+
+        setTimeout(() => {
+            tile.classList.add("flip");
+        }, i * 120);
     }
 
-    for (let i = 0; i < 5; i++) {
-        if (!rowTiles[i].classList.contains("correct")) {
-            const idx = temp.indexOf(currentGuess[i]);
-            if (idx !== -1) {
-                rowTiles[i].classList.add("present");
-                temp[idx] = null;
-            } else {
-                rowTiles[i].classList.add("absent");
+    /* 2️⃣ Apply CORRECT (green) mid-flip */
+    setTimeout(() => {
+        for (let i = 0; i < 5; i++) {
+            if (currentGuess[i] === correctWord[i]) {
+                rowTiles[i].classList.add("correct");
+                temp[i] = null;
             }
         }
-        rowTiles[i].textContent = currentGuess[i];
-    }
+    }, 300);
 
-    if (currentGuess === correctWord) {
-        messageEl.innerHTML = `🎉 You guessed it! <strong>${correctWord}</strong>`;
-        gameOver = true;
-        return;
-    }
+    /* 3️⃣ Apply PRESENT / ABSENT (yellow / gray) */
+    setTimeout(() => {
+        for (let i = 0; i < 5; i++) {
+            if (!rowTiles[i].classList.contains("correct")) {
+                const idx = temp.indexOf(currentGuess[i]);
+                if (idx !== -1) {
+                    rowTiles[i].classList.add("present");
+                    temp[idx] = null;
+                } else {
+                    rowTiles[i].classList.add("absent");
+                }
+            }
+        }
+    }, 350);
 
-    if (guesses === 5) {
-        messageEl.innerHTML = `❌ You failed. The word was <strong>${correctWord}</strong>`;
-        gameOver = true;
-        return;
-    }
+    /* 4️⃣ Cleanup flip class */
+    setTimeout(() => {
+        for (let i = 0; i < 5; i++) {
+            rowTiles[i].classList.remove("flip");
+        }
+    }, 700);
 
-    guesses++;
-    currentRow++;
-    currentGuess = "";
+    /* 5️⃣ End-game checks (after animation) */
+    setTimeout(() => {
+        if (currentGuess === correctWord) {
+            messageEl.innerHTML =
+                `🎉 You guessed it! <strong>${correctWord}</strong>`;
+            gameOver = true;
+            return;
+        }
+
+        if (guesses === 5) {
+            messageEl.innerHTML =
+                `❌ You failed. The word was <strong>${correctWord}</strong>`;
+            gameOver = true;
+            return;
+        }
+
+        guesses++;
+        currentRow++;
+        currentGuess = "";
+    }, 720);
 }
+
 
 function handleInput(k) {
     if (gameOver) return;
