@@ -61,32 +61,37 @@ h1 {
 }
 
 #board {
-    display: grid;
-    grid-template-rows: repeat(6, 1fr);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 8px;
-    margin: 20px 0;
+    margin: 18px 0;
 }
 
 .row {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, 44px);
     gap: 8px;
 }
 
 .tile {
-    height: 56px;
-    background: #333;
+    height: clamp(40px, 6vh, 44px);
+    border-radius: 8px;
+    background: #070707;
+    border: 1px solid #1a1a1a;
+
+    font-size: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.8rem;
-    font-weight: 700;
-    border-radius: 6px;
 }
 
-.correct { background: #538d4e; }
-.present { background: #b59f3b; }
-.absent  { background: #3a3a3c; }
+.correct { background: #6aaa64; color: #000; border: none; }
+.present { background: #c9b458; color: #000; border: none; }
+.absent  { background: #111; color: #555; }
 
 #message {
     min-height: 32px;
@@ -107,14 +112,18 @@ h1 {
 }
 
 .key {
-    background: #2b2b2b;
-    color: #fff;
-    padding: 12px;
-    border-radius: 6px;
+    height: clamp(42px, 7vh, 48px);
     min-width: 32px;
-    text-align: center;
-    font-weight: 700;
-    cursor: pointer;
+    background: #2b2b2b;
+    border-radius: 6px;
+
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .key.wide {
@@ -179,7 +188,10 @@ body {
         transform: rotateX(0deg);
     }
 }
-
+.key.used {
+    background: #111;
+    color: #555;
+}
 
 
 </style>
@@ -285,6 +297,8 @@ let currentGuess = "";
 let currentRow = 0;
 let guesses = 0;
 let gameOver = false;
+
+let usedLetters = new Set();
 
 function initBoard() {
     for (let r = 0; r < 6; r++) {
