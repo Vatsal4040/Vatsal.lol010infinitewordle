@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" 
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <title>Infinite Wordle</title>
 
@@ -61,37 +62,32 @@ h1 {
 }
 
 #board {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: grid;
+    grid-template-rows: repeat(6, 1fr);
     gap: 8px;
-    margin: 18px 0;
+    margin: 20px 0;
 }
 
 .row {
     display: grid;
-    grid-template-columns: repeat(5, 44px);
+    grid-template-columns: repeat(5, 1fr);
     gap: 8px;
 }
 
 .tile {
-    height: clamp(40px, 6vh, 44px);
-    border-radius: 8px;
-    background: #070707;
-    border: 1px solid #1a1a1a;
-
-    font-size: 2rem;
-    font-weight: bold;
-    text-transform: uppercase;
-
+    height: 56px;
+    background: #333;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    border-radius: 6px;
 }
 
-.correct { background: #6aaa64; color: #000; border: none; }
-.present { background: #c9b458; color: #000; border: none; }
-.absent  { background: #111; color: #555; }
+.correct { background: #538d4e; }
+.present { background: #b59f3b; }
+.absent  { background: #3a3a3c; }
 
 #message {
     min-height: 32px;
@@ -112,18 +108,14 @@ h1 {
 }
 
 .key {
-    height: clamp(42px, 7vh, 48px);
-    min-width: 32px;
     background: #2b2b2b;
+    color: #fff;
+    padding: 12px;
     border-radius: 6px;
-
-    font-size: 20px;
-    font-weight: 800;
-    line-height: 1;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    min-width: 32px;
+    text-align: center;
+    font-weight: 700;
+    cursor: pointer;
 }
 
 .key.wide {
@@ -188,10 +180,7 @@ body {
         transform: rotateX(0deg);
     }
 }
-.key.used {
-    background: #111;
-    color: #555;
-}
+
 
 
 </style>
@@ -200,17 +189,15 @@ body {
 <body>
 <div id="game">
     <div class="header">
-    <h1>INFINTE WORDLE</h1>
-
-    <div class="tooltip">?
-        <div class="tooltip-box">
-            <strong>How to Play</strong><br><br>
-            Guess the 5-letter word in 6 tries.<br><br>
-            🟢 = correct letter & position<br>
-            🟡 = correct letter, wrong position
+        <h1>Infinite Wordle</h1>
+        <div class="tooltip">?
+            <div class="tooltip-box">
+                Guess the 5-letter word<br><br>
+                🟢 Correct letter & position<br>
+                🟡 Correct letter, wrong position
+            </div>
         </div>
     </div>
-</div>
 
     <div class="subtitle">Guess the 5-letter word</div>
     <div id="message"></div>
@@ -297,8 +284,6 @@ let currentGuess = "";
 let currentRow = 0;
 let guesses = 0;
 let gameOver = false;
-
-let usedLetters = new Set();
 
 function initBoard() {
     for (let r = 0; r < 6; r++) {
