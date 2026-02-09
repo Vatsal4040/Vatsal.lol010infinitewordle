@@ -18,9 +18,11 @@ body {
 
 #game {
     max-width: 420px;
+    width: 100%;
     margin: 0 auto;
     padding: 16px;
 }
+
 
 .header {
     display: flex;
@@ -118,13 +120,13 @@ h1 {
     text-align: center;
     font-weight: 700;
     font-size: 1rem;
-    cursor: pointer;
     user-select: none;
 }
 
 .key.wide {
     flex: 1.5;
 }
+
 
 
 /* ===== MOBILE SAFETY ===== */
@@ -186,6 +188,20 @@ body {
     }
 }
 
+.keyboard-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    overflow: hidden;      /* 🔑 prevents spill */
+    padding-bottom: 8px;
+}
+
+.keyboard {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
 
 
 </style>
@@ -208,7 +224,8 @@ body {
     <div id="message"></div>
 
     <div id="board"></div>
-
+      
+<div class="keyboard-wrapper">
     <div class="keyboard">
         <div class="krow">
             <div class="key">Q</div><div class="key">W</div><div class="key">E</div>
