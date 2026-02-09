@@ -6,27 +6,30 @@
 <title>Infinite Wordle</title>
 
 <style>
-body {
+/* ===== GLOBAL ===== */
+html, body {
+    width: 100%;
     margin: 0;
     background: #000;
     color: #fff;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
 }
 
-/* ===== PAGE SYSTEM ===== */
 .page {
     display: none;
-    min-height: 100vh;
-    max-width: 420px;
+    min-height: 100svh;
+    max-width: 480px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 16px;
+    box-sizing: border-box;
 }
 .page.active { display: block; }
 
 /* ===== START PAGE ===== */
 #start-page h1 {
     font-size: 3rem;
-    margin-bottom: 12px;
+    letter-spacing: 4px;
 }
 #start-page p {
     color: #bbb;
@@ -34,7 +37,7 @@ body {
 }
 button {
     margin-top: 24px;
-    padding: 14px 32px;
+    padding: 14px 36px;
     border-radius: 999px;
     border: none;
     font-weight: 800;
@@ -58,10 +61,10 @@ button {
     top: 140%;
     background: #111;
     border: 1px solid #333;
-    padding: 10px;
-    border-radius: 8px;
+    padding: 12px;
+    border-radius: 10px;
     font-size: 0.85rem;
-    width: 220px;
+    width: 240px;
 }
 .tooltip:hover .tooltip-box { display: block; }
 
@@ -77,66 +80,83 @@ button {
     grid-template-columns: repeat(5, 1fr);
     gap: 8px;
 }
+
+/* ===== TILE ===== */
 .tile {
     height: 56px;
-    background: #333;
+    background: #121212;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+
+    font-size: 1.9rem;
+    font-weight: 900;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.8rem;
-    font-weight: 800;
-    border-radius: 6px;
+
+    perspective: 800px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
 }
-.correct { background: #538d4e; }
-.present { background: #b59f3b; color:#000; }
+
+/* tile face */
+.tile-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    transition: transform 0.6s ease;
+}
+
+/* flip trigger */
+.tile.flip .tile-inner {
+    transform: rotateX(180deg);
+}
+
+/* colors */
+.correct { background: #6aaa64; color: #000; }
+.present { background: #c9b458; color: #000; }
 .absent  { background: #3a3a3c; }
 
 /* ===== KEYBOARD ===== */
-.keyboard {
-    margin-top: 24px;
-}
-
+.keyboard { margin-top: 24px; }
 .krow {
     display: flex;
     justify-content: center;
     gap: 6px;
     margin-bottom: 6px;
 }
-
 .key {
     height: clamp(42px, 7vh, 48px);
     min-width: 32px;
-
     background: #2b2b2b;
     border-radius: 6px;
-
     font-size: 20px;
     font-weight: 800;
     line-height: 1;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
-    padding: 0;            /* ❗ critical */
-    box-sizing: border-box;
     cursor: pointer;
 }
+.key.wide { min-width: 56px; }
 
-.key.wide {
-    min-width: 56px;
-}
 /* keyboard memory */
 .key.absent { background:#3a3a3c; color:#777; }
-.key.present { background:#b59f3b; color:#000; }
-.key.correct { background:#538d4e; color:#000; }
+.key.present { background:#c9b458; color:#000; }
+.key.correct { background:#6aaa64; color:#000; }
 
 /* ===== END PAGE ===== */
-#end-page h2 { margin-bottom: 6px; }
 #answer {
-    font-size: 2.2rem;
+    font-size: 2.4rem;
     font-weight: 900;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 #review {
     display: grid;
@@ -154,20 +174,19 @@ button {
 
 <!-- START PAGE -->
 <div id="start-page" class="page active">
-    <h1>Infinite Wordle</h1>
+    <h1>INFINITE WORDLE</h1>
     <p>
         Guess the 5-letter word in 6 tries.<br><br>
         🟢 Correct letter & position<br>
-        🟡 Correct letter, wrong position<br><br>
-        Unlimited words. Unlimited play.
+        🟡 Correct letter, wrong position
     </p>
-    <button onclick="startGame()">START GAME</button>
+    <button onclick="startGame()">PLAY</button>
 </div>
 
 <!-- GAME PAGE -->
 <div id="game-page" class="page">
     <div class="header">
-        <h1>Wordle</h1>
+        <h2>WORDLE</h2>
         <div class="tooltip">?
             <div class="tooltip-box">
                 Guess the 5-letter word<br><br>
@@ -191,7 +210,7 @@ button {
             <div class="key">J</div><div class="key">K</div><div class="key">L</div>
         </div>
         <div class="krow">
-            <div class="key wide">ENT</div>
+            <div class="key wide">ENTER</div>
             <div class="key">Z</div><div class="key">X</div><div class="key">C</div>
             <div class="key">V</div><div class="key">B</div><div class="key">N</div>
             <div class="key">M</div>
@@ -202,173 +221,107 @@ button {
 
 <!-- END PAGE -->
 <div id="end-page" class="page">
-    <h2>Game Over</h2>
+    <h2>GAME OVER</h2>
     <div id="answer"></div>
-    <h3>Your Guesses</h3>
     <div id="review"></div>
     <button onclick="newWord()">NEW WORD</button>
 </div>
 
 <script>
-/* ===== DATA ===== */
-const WORDS = [
-"ABOUT","APPLE","BRICK","CHAIR","DRIVE","EARTH","FRAME",
-"GRAPE","HOUSE","PLANT","STONE","TRAIN","WATER"
-];
+const WORDS=["APPLE","GRAPE","STONE","PLANT","TRAIN","WATER","HOUSE"];
+let correctWord="",row=0,guess="",over=false;
+let guesses=[];
+const keyState={};
+const board=document.getElementById("board");
 
-/* ===== STATE ===== */
-let correctWord = "";
-let currentGuess = "";
-let row = 0;
-let gameOver = false;
-let guesses = [];
-const keyState = {}; // keyboard memory
-
-const board = document.getElementById("board");
-
-/* ===== PAGE CONTROL ===== */
-function showPage(id) {
+function showPage(id){
     document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
     document.getElementById(id).classList.add("active");
 }
+function startGame(){showPage("game-page");resetGame();}
+function newWord(){showPage("game-page");resetGame();}
 
-/* ===== GAME FLOW ===== */
-function startGame() {
-    showPage("game-page");
-    resetGame();
-}
-
-function newWord() {
-    showPage("game-page");
-    resetGame();
-}
-
-function resetGame() {
-    correctWord = WORDS[Math.floor(Math.random()*WORDS.length)];
-    currentGuess = "";
-    row = 0;
-    gameOver = false;
-    guesses = [];
-    board.innerHTML = "";
-
-    // reset keyboard memory
-    for (const k in keyState) delete keyState[k];
-    document.querySelectorAll(".key").forEach(k=>{
-        k.classList.remove("absent","present","correct");
-    });
-
+function resetGame(){
+    correctWord=WORDS[Math.floor(Math.random()*WORDS.length)];
+    row=0;guess="";over=false;guesses=[];
+    board.innerHTML="";
+    Object.keys(keyState).forEach(k=>delete keyState[k]);
+    document.querySelectorAll(".key").forEach(k=>k.classList.remove("absent","present","correct"));
     for(let r=0;r<6;r++){
-        const rowDiv=document.createElement("div");
-        rowDiv.className="row";
+        const rd=document.createElement("div");rd.className="row";
         for(let c=0;c<5;c++){
-            const t=document.createElement("div");
-            t.className="tile";
-            rowDiv.appendChild(t);
+            const t=document.createElement("div");t.className="tile";
+            t.innerHTML='<div class="tile-inner"></div>';
+            rd.appendChild(t);
         }
-        board.appendChild(rowDiv);
+        board.appendChild(rd);
     }
 }
 
-/* ===== KEYBOARD MEMORY ===== */
-function updateKey(letter, state) {
-    const priority = { absent:1, present:2, correct:3 };
-    if (keyState[letter] && priority[keyState[letter]] >= priority[state]) return;
-    keyState[letter] = state;
-
+function updateKey(l,s){
+    const p={absent:1,present:2,correct:3};
+    if(keyState[l]&&p[keyState[l]]>=p[s])return;
+    keyState[l]=s;
     document.querySelectorAll(".key").forEach(k=>{
-        if(k.textContent===letter){
+        if(k.textContent===l){
             k.classList.remove("absent","present","correct");
-            k.classList.add(state);
+            k.classList.add(s);
         }
     });
 }
 
-/* ===== GAME LOGIC ===== */
-function submitGuess() {
-    if (gameOver || currentGuess.length !== 5) return;
-
-    const result = Array(5).fill("absent");
-    const temp = correctWord.split("");
-
-    [...currentGuess].forEach((c,i)=>{
-        if(c===correctWord[i]){
-            result[i]="correct";
-            temp[i]=null;
-        }
+function submit(){
+    if(over||guess.length!==5)return;
+    const res=Array(5).fill("absent");
+    const tmp=correctWord.split("");
+    [...guess].forEach((c,i)=>{if(c===correctWord[i]){res[i]="correct";tmp[i]=null;}});
+    [...guess].forEach((c,i)=>{if(res[i]==="absent"){const x=tmp.indexOf(c);if(x>-1){res[i]="present";tmp[x]=null;}}});
+    guesses.push({word:guess,res});
+    const tiles=board.children[row].children;
+    res.forEach((r,i)=>{
+        const inner=tiles[i].firstChild;
+        inner.textContent=guess[i];
+        setTimeout(()=>{
+            tiles[i].classList.add("flip");
+            inner.classList.add(r);
+            updateKey(guess[i],r);
+        },i*120);
     });
-
-    [...currentGuess].forEach((c,i)=>{
-        if(result[i]==="absent"){
-            const idx=temp.indexOf(c);
-            if(idx>-1){
-                result[i]="present";
-                temp[idx]=null;
-            }
-        }
-    });
-
-    guesses.push({ word: currentGuess, result });
-
-    const tiles = board.children[row].children;
-    result.forEach((r,i)=>{
-        tiles[i].textContent=currentGuess[i];
-        tiles[i].classList.add(r);
-        updateKey(currentGuess[i], r);
-    });
-
-    if (currentGuess === correctWord || row === 5) {
-        gameOver = true;
-        setTimeout(endGame, 400);
-        return;
-    }
-
-    row++;
-    currentGuess = "";
+    if(guess===correctWord||row===5){over=true;setTimeout(endGame,900);return;}
+    row++;guess="";
 }
 
-function endGame() {
+function endGame(){
     showPage("end-page");
-    document.getElementById("answer").textContent = correctWord;
-    const review=document.getElementById("review");
-    review.innerHTML="";
-
+    document.getElementById("answer").textContent=correctWord;
+    const rev=document.getElementById("review");
+    rev.innerHTML="";
     guesses.forEach(g=>{
-        const r=document.createElement("div");
-        r.className="review-row";
-        [...g.word].forEach((ch,i)=>{
+        const r=document.createElement("div");r.className="review-row";
+        [...g.word].forEach((c,i)=>{
             const t=document.createElement("div");
-            t.className="tile "+g.result[i];
-            t.textContent=ch;
+            t.className="tile "+g.res[i];
+            t.textContent=c;
             r.appendChild(t);
         });
-        review.appendChild(r);
+        rev.appendChild(r);
     });
 }
 
-/* ===== INPUT ===== */
-function handleInput(k){
-    if(gameOver) return;
-
-    if(k==="ENTER") submitGuess();
-    else if(k==="⌫") currentGuess=currentGuess.slice(0,-1);
-    else if(/^[A-Z]$/.test(k) && currentGuess.length<5) currentGuess+=k;
-
+function input(k){
+    if(over)return;
+    if(k==="ENTER")submit();
+    else if(k==="⌫")guess=guess.slice(0,-1);
+    else if(/^[A-Z]$/.test(k)&&guess.length<5)guess+=k;
     const tiles=board.children[row]?.children;
-    if(tiles){
-        for(let i=0;i<5;i++){
-            tiles[i].textContent=currentGuess[i]||"";
-        }
-    }
+    if(tiles)for(let i=0;i<5;i++)tiles[i].firstChild.textContent=guess[i]||"";
 }
 
-document.querySelectorAll(".key").forEach(k=>{
-    k.onclick=()=>handleInput(k.textContent);
-});
-
+document.querySelectorAll(".key").forEach(k=>k.onclick=()=>input(k.textContent));
 document.addEventListener("keydown",e=>{
-    if(e.key==="Enter") handleInput("ENTER");
-    else if(e.key==="Backspace") handleInput("⌫");
-    else if(/^[a-zA-Z]$/.test(e.key)) handleInput(e.key.toUpperCase());
+    if(e.key==="Enter")input("ENTER");
+    else if(e.key==="Backspace")input("⌫");
+    else if(/^[a-zA-Z]$/.test(e.key))input(e.key.toUpperCase());
 });
 </script>
 
