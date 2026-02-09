@@ -2,10 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" 
-      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Infinite Wordle</title>
 
 <style>
@@ -16,30 +13,44 @@ body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-#game {
+/* ===== PAGE SYSTEM ===== */
+.page {
+    display: none;
+    min-height: 100vh;
     max-width: 420px;
-    width: 100%;
     margin: 0 auto;
-    padding: 16px;
+    padding: 20px;
+}
+.page.active { display: block; }
+
+/* ===== START PAGE ===== */
+#start-page h1 {
+    font-size: 3rem;
+    margin-bottom: 12px;
+}
+#start-page p {
+    color: #bbb;
+    line-height: 1.6;
+}
+button {
+    margin-top: 24px;
+    padding: 14px 32px;
+    border-radius: 999px;
+    border: none;
+    font-weight: 800;
+    cursor: pointer;
 }
 
-
+/* ===== HEADER ===== */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-
-h1 {
-    margin: 0;
-    font-size: 2.4rem;
-}
-
 .tooltip {
     position: relative;
     cursor: pointer;
 }
-
 .tooltip-box {
     display: none;
     position: absolute;
@@ -51,31 +62,21 @@ h1 {
     border-radius: 8px;
     font-size: 0.85rem;
     width: 220px;
-    z-index: 10;
 }
+.tooltip:hover .tooltip-box { display: block; }
 
-.tooltip:hover .tooltip-box {
-    display: block;
-}
-
-.subtitle {
-    margin: 10px 0;
-    color: #aaa;
-}
-
+/* ===== BOARD ===== */
 #board {
     display: grid;
     grid-template-rows: repeat(6, 1fr);
     gap: 8px;
     margin: 20px 0;
 }
-
 .row {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 8px;
 }
-
 .tile {
     height: 56px;
     background: #333;
@@ -83,142 +84,74 @@ h1 {
     align-items: center;
     justify-content: center;
     font-size: 1.8rem;
-    font-weight: 700;
+    font-weight: 800;
     border-radius: 6px;
 }
-
 .correct { background: #538d4e; }
-.present { background: #b59f3b; }
+.present { background: #b59f3b; color:#000; }
 .absent  { background: #3a3a3c; }
 
-#message {
-    min-height: 32px;
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-}
-
-.keyboard {
-    width: 100%;
-    max-width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
+/* ===== KEYBOARD ===== */
+.keyboard { margin-top: 10px; }
 .krow {
     display: flex;
-    width: 100%;
+    justify-content: center;
     gap: 6px;
+    margin-bottom: 6px;
 }
-
 .key {
-    flex: 1;
-    padding: 12px 0;
     background: #2b2b2b;
-    color: #fff;
+    padding: 12px;
     border-radius: 6px;
+    min-width: 32px;
     text-align: center;
-    font-weight: 700;
-    font-size: 1rem;
-    user-select: none;
+    font-weight: 800;
+    cursor: pointer;
 }
+.key.wide { min-width: 64px; }
 
-.key.wide {
-    flex: 1.5;
+/* keyboard memory */
+.key.absent { background:#3a3a3c; color:#777; }
+.key.present { background:#b59f3b; color:#000; }
+.key.correct { background:#538d4e; color:#000; }
+
+/* ===== END PAGE ===== */
+#end-page h2 { margin-bottom: 6px; }
+#answer {
+    font-size: 2.2rem;
+    font-weight: 900;
+    margin-bottom: 20px;
 }
-
-
-
-/* ===== MOBILE SAFETY ===== */
-@media (max-width: 420px) {
-    #game {
-        padding: 12px;
-    }
-
-    .tile {
-        height: 48px;
-        font-size: 1.6rem;
-    }
-
-    .key {
-        padding: 10px;
-        font-size: 0.9rem;
-        
-    }
-
-    .key.wide {
-        
-    }
+#review {
+    display: grid;
+    gap: 10px;
 }
-
-/* Very small phones (iPhone SE, old Android) */
-@media (max-width: 360px) {
-    .tile {
-        height: 44px;
-        font-size: 1.4rem;
-    }
-
-    .key {
-        padding: 8px;
-        font-size: 0.8rem;
-    }
-}
-body {
-    padding-bottom: env(safe-area-inset-bottom);
-}
-/* ===== TILE FLIP ANIMATION ===== */
-.tile {
-    perspective: 1000px;
-}
-
-.tile.flip {
-    animation: flip 0.6s ease forwards;
-}
-
-@keyframes flip {
-    0% {
-        transform: rotateX(0deg);
-    }
-    50% {
-        transform: rotateX(90deg);
-        background: #333;
-    }
-    100% {
-        transform: rotateX(0deg);
-    }
-}
-
-.keyboard-wrapper {
-    width: 100%;
-    max-width: 100%;
-    margin: 0 auto;
-    overflow: hidden;      /* 🔑 prevents spill */
-    padding-bottom: 8px;
-}
-
-.keyboard {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
+.review-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
     gap: 6px;
 }
-
-
 </style>
 </head>
 
 <body>
 
-      <a href="https://vatsal.lol" target="_blank">
-  <img 
-    src="https://cdn.shopify.com/s/files/1/0917/5810/0863/files/ChatGPT_Image_Feb_9_2026_02_08_17_PM.png?v=1770633368"
-    alt="Vatsal.lol"
-    style="position:fixed; top:12px; left:12px; height:100px; z-index:9999; cursor:pointer;"
-  >
-</a>
-<div id="game">
+<!-- START PAGE -->
+<div id="start-page" class="page active">
+    <h1>Infinite Wordle</h1>
+    <p>
+        Guess the 5-letter word in 6 tries.<br><br>
+        🟢 Correct letter & position<br>
+        🟡 Correct letter, wrong position<br><br>
+        Unlimited words. Unlimited play.
+    </p>
+    <button onclick="startGame()">START GAME</button>
+</div>
+
+<!-- GAME PAGE -->
+<div id="game-page" class="page">
     <div class="header">
-        <h1>Infinite Wordle</h1>
+        <h1>Wordle</h1>
         <div class="tooltip">?
             <div class="tooltip-box">
                 Guess the 5-letter word<br><br>
@@ -228,12 +161,8 @@ body {
         </div>
     </div>
 
-    <div class="subtitle">Guess the 5-letter word</div>
-    <div id="message"></div>
-
     <div id="board"></div>
-      
-<div class="keyboard-wrapper">
+
     <div class="keyboard">
         <div class="krow">
             <div class="key">Q</div><div class="key">W</div><div class="key">E</div>
@@ -255,173 +184,177 @@ body {
     </div>
 </div>
 
+<!-- END PAGE -->
+<div id="end-page" class="page">
+    <h2>Game Over</h2>
+    <div id="answer"></div>
+    <h3>Your Guesses</h3>
+    <div id="review"></div>
+    <button onclick="newWord()">NEW WORD</button>
+</div>
+
 <script>
-   const WORDS = [
-"ABOUT","ABOVE","ABUSE","ACTOR","ACUTE","ADMIT","ADOPT","ADULT","AFTER","AGAIN",
-"AGENT","AGREE","AHEAD","ALARM","ALBUM","ALERT","ALIKE","ALIVE","ALLOW","ALONE",
-"ALONG","ALTER","AMBER","AMONG","ANGER","ANGLE","ANGRY","APART","APPLE","APPLY",
-"ARENA","ARGUE","ARISE","ARRAY","ASIDE","ASSET","AUDIO","AUDIT","AVOID","AWARD",
-"AWARE","BADLY","BAKER","BASIC","BASIS","BEACH","BEGIN","BEING","BELLY","BELOW",
-"BENCH","BILLY","BIRTH","BLACK","BLAME","BLANK","BLIND","BLOCK","BLOOD","BOARD",
-"BOOST","BOUND","BRAIN","BRAND","BREAD","BREAK","BRICK","BRIDE","BRIEF","BRING",
-"BROAD","BROKE","BROWN","BUILD","BUILT","BUYER","CABLE","CACHE","CALIF","CARRY",
-"CATCH","CAUSE","CHAIN","CHAIR","CHART","CHASE","CHEAP","CHECK","CHEST","CHIEF",
-"CHILD","CHOIR","CHOOSE","CHUNK","CIVIC","CLAIM","CLASS","CLEAN","CLEAR","CLICK",
-"CLIMB","CLOCK","CLOSE","COACH","COAST","COLOR","COMBO","COMIC","COUNT","COURT",
-"COVER","CRACK","CRAFT","CRANE","CRASH","CRIME","CROSS","CROWD","CROWN","CURVE",
-"CYCLE","DAILY","DANCE","DATED","DEALT","DEATH","DEBUT","DELAY","DEPTH","DEVIL",
-"DIRTY","DOING","DOUBT","DOZEN","DRAFT","DRAMA","DRAWN","DREAM","DRESS","DRILL",
-"DRINK","DRIVE","DROVE","DYING","EAGER","EARLY","EARTH","EIGHT","ELDER","ELECT",
-"ELITE","EMPTY","ENEMY","ENJOY","ENTER","ENTRY","EQUAL","ERROR","EVENT","EVERY",
-"EXACT","EXIST","EXTRA","FAITH","FALSE","FAULT","FAVOR","FENCE","FEVER","FIELD",
-"FIFTH","FIFTY","FIGHT","FINAL","FIRST","FIXED","FLASH","FLEET","FLOOR","FLUID",
-"FOCUS","FORCE","FORTH","FORTY","FOUND","FRAME","FRANK","FRAUD","FRESH","FRONT",
-"FRUIT","FULLY","FUNNY","GIANT","GIVEN","GLASS","GLOBE","GOING","GRACE","GRADE",
-"GRAIN","GRAND","GRANT","GRASS","GREAT","GREEN","GROUP","GROWN","GUARD","GUESS",
-"GUEST","GUIDE","HAPPY","HARRY","HEART","HEAVY","HONEY","HORSE","HOTEL","HOUSE",
-"HUMAN","IDEAL","IMAGE","INDEX","INNER","INPUT","ISSUE","JELLY","JOINT","JUDGE",
-"JUICE","KNIFE","KNOCK","KNOWN","LABEL","LARGE","LASER","LATER","LAUGH","LAYER",
-"LEARN","LEASE","LEAST","LEMON","LEVEL","LIGHT","LIMIT","LOCAL","LOGIC","LOOSE",
-"LUCKY","LUNCH","MAGIC","MAJOR","MAKER","MARCH","MATCH","MAYBE","METAL","MIGHT",
-"MINOR","MODEL","MONEY","MONTH","MORAL","MOTOR","MOUNT","MOUSE","MOUTH","MUSIC",
-"NAKED","NERVE","NEVER","NEWLY","NIGHT","NOISE","NORTH","NOVEL","NURSE","OCCUR",
-"OCEAN","OFFER","OFTEN","ORDER","ORGAN","OTHER","OUGHT","PAINT","PANEL","PAPER",
-"PARTY","PEACE","PHASE","PHONE","PHOTO","PIANO","PIECE","PILOT","PITCH","PLACE",
-"PLAIN","PLANE","PLANT","PLATE","POINT","POUND","POWER","PRESS","PRICE","PRIDE",
-"PRIME","PRINT","PRIOR","PRIZE","PROOF","PROUD","PROVE","QUEEN","QUERY","QUEST",
-"QUICK","QUIET","RADIO","RAISE","RANGE","RAPID","RATIO","REACH","READY","REFER",
-"RIGHT","RIVER","ROUGH","ROUND","ROUTE","ROYAL","RURAL","SCALE","SCENE","SCOPE",
-"SCORE","SENSE","SERVE","SEVEN","SHALL","SHAPE","SHARE","SHARP","SHEET","SHELF",
-"SHELL","SHIFT","SHINE","SHIRT","SHOCK","SHOOT","SHORT","SHOWN","SIGHT","SINCE",
-"SIXTH","SKILL","SLEEP","SLIDE","SMALL","SMART","SMILE","SMOKE","SOLID","SOLVE",
-"SOUND","SOUTH","SPACE","SPEAK","SPEED","SPEND","SPENT","SPLIT","SPORT","SQUAD",
-"STAFF","STAGE","STAKE","STAND","START","STATE","STEAM","STEEL","STICK","STILL",
-"STOCK","STONE","STORE","STORM","STORY","STRIP","STUCK","STYLE","SUGAR","SUPER",
-"SWEET","TABLE","TAKEN","TASTE","TEACH","TEETH","THANK","THEIR","THEME","THERE",
-"THICK","THING","THINK","THIRD","THOSE","THREE","THROW","TIGER","TITLE","TODAY",
-"TOPIC","TOTAL","TOUCH","TOUGH","TOWER","TRACK","TRADE","TRAIN","TREAT","TREND",
-"TRIAL","TRUST","TRUTH","TWICE","UNDER","UNION","UNITY","UNTIL","UPPER","UPSET",
-"URBAN","USAGE","USUAL","VALID","VALUE","VIDEO","VIRUS","VISIT","VITAL","VOICE",
-"WASTE","WATCH","WATER","WHEEL","WHERE","WHILE","WHITE","WHOLE","WHOSE","WOMAN",
-"WORLD","WORRY","WORTH","WOULD","WRITE","WRONG","YIELD","YOUTH","ZEBRA"
-]
-const correctWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+/* ===== DATA ===== */
+const WORDS = [
+"ABOUT","APPLE","BRICK","CHAIR","DRIVE","EARTH","FRAME",
+"GRAPE","HOUSE","PLANT","STONE","TRAIN","WATER"
+];
+
+/* ===== STATE ===== */
+let correctWord = "";
+let currentGuess = "";
+let row = 0;
+let gameOver = false;
+let guesses = [];
+const keyState = {}; // keyboard memory
 
 const board = document.getElementById("board");
-const messageEl = document.getElementById("message");
 
-let currentGuess = "";
-let currentRow = 0;
-let guesses = 0;
-let gameOver = false;
+/* ===== PAGE CONTROL ===== */
+function showPage(id) {
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
 
-function initBoard() {
-    for (let r = 0; r < 6; r++) {
-        const row = document.createElement("div");
-        row.className = "row";
-        for (let c = 0; c < 5; c++) {
-            const tile = document.createElement("div");
-            tile.className = "tile";
-            row.appendChild(tile);
+/* ===== GAME FLOW ===== */
+function startGame() {
+    showPage("game-page");
+    resetGame();
+}
+
+function newWord() {
+    showPage("game-page");
+    resetGame();
+}
+
+function resetGame() {
+    correctWord = WORDS[Math.floor(Math.random()*WORDS.length)];
+    currentGuess = "";
+    row = 0;
+    gameOver = false;
+    guesses = [];
+    board.innerHTML = "";
+
+    // reset keyboard memory
+    for (const k in keyState) delete keyState[k];
+    document.querySelectorAll(".key").forEach(k=>{
+        k.classList.remove("absent","present","correct");
+    });
+
+    for(let r=0;r<6;r++){
+        const rowDiv=document.createElement("div");
+        rowDiv.className="row";
+        for(let c=0;c<5;c++){
+            const t=document.createElement("div");
+            t.className="tile";
+            rowDiv.appendChild(t);
         }
-        board.appendChild(row);
+        board.appendChild(rowDiv);
     }
 }
 
-initBoard();
+/* ===== KEYBOARD MEMORY ===== */
+function updateKey(letter, state) {
+    const priority = { absent:1, present:2, correct:3 };
+    if (keyState[letter] && priority[keyState[letter]] >= priority[state]) return;
+    keyState[letter] = state;
+
+    document.querySelectorAll(".key").forEach(k=>{
+        if(k.textContent===letter){
+            k.classList.remove("absent","present","correct");
+            k.classList.add(state);
+        }
+    });
+}
+
+/* ===== GAME LOGIC ===== */
 function submitGuess() {
     if (gameOver || currentGuess.length !== 5) return;
 
-    const rowTiles = board.children[currentRow].children;
+    const result = Array(5).fill("absent");
     const temp = correctWord.split("");
 
-    /* 1️⃣ Trigger flip animation (staggered) */
-    for (let i = 0; i < 5; i++) {
-        const tile = rowTiles[i];
-        tile.textContent = currentGuess[i];
+    [...currentGuess].forEach((c,i)=>{
+        if(c===correctWord[i]){
+            result[i]="correct";
+            temp[i]=null;
+        }
+    });
 
-        setTimeout(() => {
-            tile.classList.add("flip");
-        }, i * 120);
+    [...currentGuess].forEach((c,i)=>{
+        if(result[i]==="absent"){
+            const idx=temp.indexOf(c);
+            if(idx>-1){
+                result[i]="present";
+                temp[idx]=null;
+            }
+        }
+    });
+
+    guesses.push({ word: currentGuess, result });
+
+    const tiles = board.children[row].children;
+    result.forEach((r,i)=>{
+        tiles[i].textContent=currentGuess[i];
+        tiles[i].classList.add(r);
+        updateKey(currentGuess[i], r);
+    });
+
+    if (currentGuess === correctWord || row === 5) {
+        gameOver = true;
+        setTimeout(endGame, 400);
+        return;
     }
 
-    /* 2️⃣ Apply CORRECT (green) mid-flip */
-    setTimeout(() => {
-        for (let i = 0; i < 5; i++) {
-            if (currentGuess[i] === correctWord[i]) {
-                rowTiles[i].classList.add("correct");
-                temp[i] = null;
-            }
-        }
-    }, 300);
-
-    /* 3️⃣ Apply PRESENT / ABSENT (yellow / gray) */
-    setTimeout(() => {
-        for (let i = 0; i < 5; i++) {
-            if (!rowTiles[i].classList.contains("correct")) {
-                const idx = temp.indexOf(currentGuess[i]);
-                if (idx !== -1) {
-                    rowTiles[i].classList.add("present");
-                    temp[idx] = null;
-                } else {
-                    rowTiles[i].classList.add("absent");
-                }
-            }
-        }
-    }, 350);
-
-    /* 4️⃣ Cleanup flip class */
-    setTimeout(() => {
-        for (let i = 0; i < 5; i++) {
-            rowTiles[i].classList.remove("flip");
-        }
-    }, 700);
-
-    /* 5️⃣ End-game checks (after animation) */
-    setTimeout(() => {
-        if (currentGuess === correctWord) {
-            messageEl.innerHTML =
-                `🎉 You guessed it! <strong>${correctWord}</strong>`;
-            gameOver = true;
-            return;
-        }
-
-        if (guesses === 5) {
-            messageEl.innerHTML =
-                `❌ You failed. The word was <strong>${correctWord}</strong>`;
-            gameOver = true;
-            return;
-        }
-
-        guesses++;
-        currentRow++;
-        currentGuess = "";
-    }, 720);
+    row++;
+    currentGuess = "";
 }
 
+function endGame() {
+    showPage("end-page");
+    document.getElementById("answer").textContent = correctWord;
+    const review=document.getElementById("review");
+    review.innerHTML="";
 
-function handleInput(k) {
-    if (gameOver) return;
+    guesses.forEach(g=>{
+        const r=document.createElement("div");
+        r.className="review-row";
+        [...g.word].forEach((ch,i)=>{
+            const t=document.createElement("div");
+            t.className="tile "+g.result[i];
+            t.textContent=ch;
+            r.appendChild(t);
+        });
+        review.appendChild(r);
+    });
+}
 
-    if (k === "ENTER") submitGuess();
-    else if (k === "⌫") currentGuess = currentGuess.slice(0, -1);
-    else if (/^[A-Z]$/.test(k) && currentGuess.length < 5) currentGuess += k;
+/* ===== INPUT ===== */
+function handleInput(k){
+    if(gameOver) return;
 
-    const rowTiles = board.children[currentRow].children;
-    for (let i = 0; i < 5; i++) {
-        rowTiles[i].textContent = currentGuess[i] || "";
+    if(k==="ENTER") submitGuess();
+    else if(k==="⌫") currentGuess=currentGuess.slice(0,-1);
+    else if(/^[A-Z]$/.test(k) && currentGuess.length<5) currentGuess+=k;
+
+    const tiles=board.children[row]?.children;
+    if(tiles){
+        for(let i=0;i<5;i++){
+            tiles[i].textContent=currentGuess[i]||"";
+        }
     }
 }
 
-document.querySelectorAll(".key").forEach(k =>
-    k.onclick = () => handleInput(k.textContent)
-);
+document.querySelectorAll(".key").forEach(k=>{
+    k.onclick=()=>handleInput(k.textContent);
+});
 
-document.addEventListener("keydown", e => {
-    if (e.key === "Enter") handleInput("ENTER");
-    else if (e.key === "Backspace") handleInput("⌫");
-    else if (/^[a-zA-Z]$/.test(e.key)) handleInput(e.key.toUpperCase());
+document.addEventListener("keydown",e=>{
+    if(e.key==="Enter") handleInput("ENTER");
+    else if(e.key==="Backspace") handleInput("⌫");
+    else if(/^[a-zA-Z]$/.test(e.key)) handleInput(e.key.toUpperCase());
 });
 </script>
+
 </body>
 </html>
